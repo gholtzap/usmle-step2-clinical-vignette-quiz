@@ -5,11 +5,10 @@ import { DrawingTool, Point, DrawingPath } from '@/types/canvas';
 
 interface DrawingCanvasProps {
   tool: DrawingTool;
-  onClear?: () => void;
   clearTrigger?: number;
 }
 
-export default function DrawingCanvas({ tool, onClear, clearTrigger }: DrawingCanvasProps) {
+export default function DrawingCanvas({ tool, clearTrigger }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [paths, setPaths] = useState<DrawingPath[]>([]);
@@ -59,7 +58,7 @@ export default function DrawingCanvas({ tool, onClear, clearTrigger }: DrawingCa
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     paths.forEach((path) => {
-      if (path.points.length < 2) return;
+      if (path.points.length < 2 || path.tool !== 'pencil') return;
 
       ctx.beginPath();
       ctx.moveTo(path.points[0].x, path.points[0].y);
@@ -68,20 +67,11 @@ export default function DrawingCanvas({ tool, onClear, clearTrigger }: DrawingCa
         ctx.lineTo(path.points[i].x, path.points[i].y);
       }
 
-      if (path.tool === 'pencil') {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.globalCompositeOperation = 'source-over';
-      } else if (path.tool === 'eraser') {
-        ctx.strokeStyle = 'rgba(0,0,0,1)';
-        ctx.lineWidth = 20;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.globalCompositeOperation = 'destination-out';
-      }
-
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.globalCompositeOperation = 'source-over';
       ctx.stroke();
     });
   }, [paths]);
@@ -109,13 +99,54 @@ export default function DrawingCanvas({ tool, onClear, clearTrigger }: DrawingCa
     };
   };
 
+  const distanceToLineSegment = (point: Point, lineStart: Point, lineEnd: Point): number => {
+    const dx = lineEnd.x - lineStart.x;
+    const dy = lineEnd.y - lineStart.y;
+    const lengthSquared = dx * dx + dy * dy;
+
+    if (lengthSquared === 0) {
+      const distX = point.x - lineStart.x;
+      const distY = point.y - lineStart.y;
+      return Math.sqrt(distX * distX + distY * distY);
+    }
+
+    let t = ((point.x - lineStart.x) * dx + (point.y - lineStart.y) * dy) / lengthSquared;
+    t = Math.max(0, Math.min(1, t));
+
+    const projX = lineStart.x + t * dx;
+    const projY = lineStart.y + t * dy;
+
+    const distX = point.x - projX;
+    const distY = point.y - projY;
+    return Math.sqrt(distX * distX + distY * distY);
+  };
+
+  const isPointNearPath = (point: Point, path: DrawingPath, threshold: number = 20): boolean => {
+    for (let i = 0; i < path.points.length - 1; i++) {
+      const distance = distanceToLineSegment(point, path.points[i], path.points[i + 1]);
+      if (distance <= threshold) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const removePathsUnderEraser = (point: Point) => {
+    setPaths((prevPaths) => prevPaths.filter((path) => !isPointNearPath(point, path)));
+  };
+
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (tool === 'cursor') return;
 
     e.preventDefault();
     setIsDrawing(true);
     const point = getCanvasPoint(e);
-    setCurrentPath([point]);
+
+    if (tool === 'eraser') {
+      removePathsUnderEraser(point);
+    } else {
+      setCurrentPath([point]);
+    }
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -123,43 +154,38 @@ export default function DrawingCanvas({ tool, onClear, clearTrigger }: DrawingCa
 
     e.preventDefault();
     const point = getCanvasPoint(e);
-    setCurrentPath((prev) => [...prev, point]);
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (tool === 'eraser') {
+      removePathsUnderEraser(point);
+    } else if (tool === 'pencil') {
+      setCurrentPath((prev) => [...prev, point]);
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    if (currentPath.length > 0) {
-      const lastPoint = currentPath[currentPath.length - 1];
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-      ctx.beginPath();
-      ctx.moveTo(lastPoint.x, lastPoint.y);
-      ctx.lineTo(point.x, point.y);
+      if (currentPath.length > 0) {
+        const lastPoint = currentPath[currentPath.length - 1];
 
-      if (tool === 'pencil') {
+        ctx.beginPath();
+        ctx.moveTo(lastPoint.x, lastPoint.y);
+        ctx.lineTo(point.x, point.y);
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.globalCompositeOperation = 'source-over';
-      } else if (tool === 'eraser') {
-        ctx.strokeStyle = 'rgba(0,0,0,1)';
-        ctx.lineWidth = 20;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.globalCompositeOperation = 'destination-out';
+        ctx.stroke();
       }
-
-      ctx.stroke();
     }
   };
 
   const stopDrawing = () => {
     if (!isDrawing) return;
 
-    if (currentPath.length > 0 && tool !== 'cursor') {
+    if (currentPath.length > 0 && tool === 'pencil') {
       setPaths((prev) => [...prev, { points: currentPath, tool }]);
     }
 

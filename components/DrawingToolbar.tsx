@@ -5,9 +5,10 @@ import { DrawingTool } from '@/types/canvas';
 interface DrawingToolbarProps {
   currentTool: DrawingTool;
   onToolChange: (tool: DrawingTool) => void;
+  onClear: () => void;
 }
 
-export default function DrawingToolbar({ currentTool, onToolChange }: DrawingToolbarProps) {
+export default function DrawingToolbar({ currentTool, onToolChange, onClear }: DrawingToolbarProps) {
   const tools: { name: DrawingTool; icon: string; label: string }[] = [
     { name: 'cursor', icon: '↖', label: 'Cursor' },
     { name: 'pencil', icon: '✎', label: 'Pencil' },
@@ -30,6 +31,16 @@ export default function DrawingToolbar({ currentTool, onToolChange }: DrawingToo
           {tool.icon}
         </button>
       ))}
+
+      <div className="h-px bg-border my-1" />
+
+      <button
+        onClick={onClear}
+        className="w-14 h-14 rounded-lg border bg-surface border-border text-foreground-muted hover:border-error hover:bg-error/10 hover:text-error transition-all flex items-center justify-center text-2xl"
+        title="Clear All"
+      >
+        ×
+      </button>
     </div>
   );
 }

@@ -82,6 +82,10 @@ export default function Quiz() {
     setIsQuizComplete(false);
   };
 
+  const handleClearCanvas = () => {
+    setClearCanvasTrigger((prev) => prev + 1);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
@@ -313,7 +317,7 @@ export default function Quiz() {
       </div>
 
       <DrawingCanvas tool={drawingTool} clearTrigger={clearCanvasTrigger} />
-      <DrawingToolbar currentTool={drawingTool} onToolChange={setDrawingTool} />
+      <DrawingToolbar currentTool={drawingTool} onToolChange={setDrawingTool} onClear={handleClearCanvas} />
     </div>
   );
 }
