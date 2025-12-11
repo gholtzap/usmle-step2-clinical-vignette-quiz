@@ -17,6 +17,7 @@ export default function Quiz() {
   const [error, setError] = useState<string>('');
   const [drawingTool, setDrawingTool] = useState<DrawingTool>('cursor');
   const [clearCanvasTrigger, setClearCanvasTrigger] = useState(0);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -84,6 +85,23 @@ export default function Quiz() {
 
   const handleClearCanvas = () => {
     setClearCanvasTrigger((prev) => prev + 1);
+  };
+
+  const handleCopyQuestion = async () => {
+    const currentQuestion = questions[currentQuestionIndex];
+    const optionKeys = Object.keys(currentQuestion.options).sort();
+
+    const formattedText = `${currentQuestion.question}
+
+${optionKeys.map(key => `${key}. ${currentQuestion.options[key]}`).join('\n')}`;
+
+    try {
+      await navigator.clipboard.writeText(formattedText);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   if (loading) {
@@ -208,8 +226,31 @@ export default function Quiz() {
 
         <div className="bg-surface rounded-xl border border-border p-8">
           <div className="mb-6">
-            <div className="inline-block bg-surface-hover border border-border text-foreground-muted text-sm px-3 py-1.5 rounded-md mb-4">
-              {currentQuestion.meta_info}
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="inline-block bg-surface-hover border border-border text-foreground-muted text-sm px-3 py-1.5 rounded-md">
+                {currentQuestion.meta_info}
+              </div>
+              <button
+                onClick={handleCopyQuestion}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-surface-hover hover:bg-surface text-foreground-muted hover:text-foreground transition-all text-sm"
+                title="Copy question"
+              >
+                {copySuccess ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy
+                  </>
+                )}
+              </button>
             </div>
             <h2 className="text-xl font-medium text-foreground leading-relaxed">
               {currentQuestion.question}
