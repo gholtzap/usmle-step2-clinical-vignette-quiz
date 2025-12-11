@@ -67,6 +67,7 @@ export default function Quiz() {
 
   const handleNextQuestion = () => {
     setClearCanvasTrigger((prev) => prev + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
@@ -79,6 +80,7 @@ export default function Quiz() {
 
   const handleSkipQuestion = () => {
     setClearCanvasTrigger((prev) => prev + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
