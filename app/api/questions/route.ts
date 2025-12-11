@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50;
     const offset = searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0;
 
-    const filePath = path.join(process.cwd(), 'US_qbank.jsonl');
+    const filePath = path.join(process.cwd(), 'questions/US_qbank.jsonl');
     const fileContent = await fs.readFile(filePath, 'utf-8');
 
     const lines = fileContent.trim().split('\n');
