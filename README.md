@@ -7,22 +7,17 @@
 
 ### Installation
 
-1. Navigate to the quiz-app directory:
-```bash
-cd quiz-app
-```
-
-2. Install dependencies:
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Start the development server:
+2. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and visit [http://localhost:3000](http://localhost:3000)
+3. Open your browser and visit [http://localhost:3000](http://localhost:3000)
 
 
 ## Configuration
@@ -40,5 +35,5 @@ const response = await fetch('/api/questions?limit=50'); // Change 50 to your de
 To use a different question bank, update the file path in app/api/questions/route.ts:
 
 ```typescript
-const filePath = path.join('C:', 'Users', 'Gavin', 'dev', 'case-studies-quiz', 'US', 'US_qbank.jsonl');
+const filePath = path.join(process.cwd(), 'US_qbank.jsonl');
 ```

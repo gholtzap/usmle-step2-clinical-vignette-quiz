@@ -2,6 +2,10 @@
 .claude
 CLAUDE.md
 
+# Old directories
+quiz-app/
+question-bank/
+
 # Dependencies
 node_modules/
 
