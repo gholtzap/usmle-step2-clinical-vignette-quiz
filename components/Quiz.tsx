@@ -75,6 +75,17 @@ export default function Quiz() {
     }
   };
 
+  const handleSkipQuestion = () => {
+    setClearCanvasTrigger((prev) => prev + 1);
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer('');
+      setShowFeedback(false);
+    } else {
+      setIsQuizComplete(true);
+    }
+  };
+
   const handleRestartQuiz = () => {
     setCurrentQuestionIndex(0);
     setUserAnswers([]);
@@ -325,17 +336,25 @@ ${optionKeys.map(key => `${key}. ${currentQuestion.options[key]}`).join('\n')}`;
 
           <div className="flex gap-4">
             {!showFeedback ? (
-              <button
-                onClick={handleSubmitAnswer}
-                disabled={!selectedAnswer}
-                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-all ${
-                  selectedAnswer
-                    ? 'bg-accent text-white hover:bg-accent-hover'
-                    : 'bg-surface-hover text-foreground-muted cursor-not-allowed border border-border'
-                }`}
-              >
-                Submit Answer
-              </button>
+              <>
+                <button
+                  onClick={handleSubmitAnswer}
+                  disabled={!selectedAnswer}
+                  className={`flex-1 py-3 px-6 rounded-lg font-medium transition-all ${
+                    selectedAnswer
+                      ? 'bg-accent text-white hover:bg-accent-hover'
+                      : 'bg-surface-hover text-foreground-muted cursor-not-allowed border border-border'
+                  }`}
+                >
+                  Submit Answer
+                </button>
+                <button
+                  onClick={handleSkipQuestion}
+                  className="px-6 py-3 rounded-lg font-medium border border-border bg-surface-hover hover:bg-surface text-foreground-muted hover:text-foreground transition-all"
+                >
+                  Skip
+                </button>
+              </>
             ) : (
               <button
                 onClick={handleNextQuestion}
