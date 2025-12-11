@@ -18,17 +18,20 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50;
     const offset = searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0;
+    const steps = searchParams.get('steps');
 
     const filePath = path.join(process.cwd(), 'questions/US_qbank.jsonl');
     const fileContent = await fs.readFile(filePath, 'utf-8');
 
     const lines = fileContent.trim().split('\n');
-    const allQuestions: Question[] = lines.map(line => JSON.parse(line));
+    let allQuestions: Question[] = lines.map(line => JSON.parse(line));
 
-    // Shuffle questions to randomize order
+    if (steps && steps !== 'both') {
+      allQuestions = allQuestions.filter(q => q.meta_info === steps);
+    }
+
     const shuffledQuestions = shuffleArray(allQuestions);
 
-    // Apply pagination
     const paginatedQuestions = shuffledQuestions.slice(offset, offset + limit);
 
     return NextResponse.json({

@@ -6,6 +6,8 @@ import { DrawingTool } from '@/types/canvas';
 import DrawingCanvas from '@/components/DrawingCanvas';
 import DrawingToolbar from '@/components/DrawingToolbar';
 
+type StepFilter = 'step1' | 'step2' | 'both';
+
 export default function Quiz() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -19,15 +21,22 @@ export default function Quiz() {
   const [clearCanvasTrigger, setClearCanvasTrigger] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [stepFilter, setStepFilter] = useState<StepFilter>('both');
 
   useEffect(() => {
     loadQuestions();
-  }, []);
+  }, [stepFilter]);
 
   const loadQuestions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/questions?limit=50');
+      setCurrentQuestionIndex(0);
+      setUserAnswers([]);
+      setSelectedAnswer('');
+      setShowFeedback(false);
+      setIsQuizComplete(false);
+
+      const response = await fetch(`/api/questions?limit=50&steps=${stepFilter}`);
       const data = await response.json();
 
       if (data.error) {
@@ -92,11 +101,7 @@ export default function Quiz() {
   };
 
   const handleRestartQuiz = () => {
-    setCurrentQuestionIndex(0);
-    setUserAnswers([]);
-    setSelectedAnswer('');
-    setShowFeedback(false);
-    setIsQuizComplete(false);
+    loadQuestions();
   };
 
   const handleClearCanvas = () => {
@@ -227,6 +232,41 @@ ${optionKeys.map(key => `${key}. ${currentQuestion.options[key]}`).join('\n')}`;
   return (
     <div className="min-h-screen bg-black py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => setStepFilter('step1')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                stepFilter === 'step1'
+                  ? 'bg-accent text-white'
+                  : 'bg-surface-hover text-foreground-muted border border-border hover:bg-surface hover:text-foreground'
+              }`}
+            >
+              Step 1
+            </button>
+            <button
+              onClick={() => setStepFilter('step2')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                stepFilter === 'step2'
+                  ? 'bg-accent text-white'
+                  : 'bg-surface-hover text-foreground-muted border border-border hover:bg-surface hover:text-foreground'
+              }`}
+            >
+              Step 2
+            </button>
+            <button
+              onClick={() => setStepFilter('both')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                stepFilter === 'both'
+                  ? 'bg-accent text-white'
+                  : 'bg-surface-hover text-foreground-muted border border-border hover:bg-surface hover:text-foreground'
+              }`}
+            >
+              Both Steps
+            </button>
+          </div>
+        </div>
+
         <div className="mb-8">
           <div className="flex justify-between text-sm text-foreground-muted mb-3">
             <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
