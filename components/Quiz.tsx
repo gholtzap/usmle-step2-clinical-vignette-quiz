@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Question, UserAnswer } from '@/types/quiz';
+import { DrawingTool } from '@/types/canvas';
+import DrawingCanvas from '@/components/DrawingCanvas';
+import DrawingToolbar from '@/components/DrawingToolbar';
 
 export default function Quiz() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -12,6 +15,8 @@ export default function Quiz() {
   const [isQuizComplete, setIsQuizComplete] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [drawingTool, setDrawingTool] = useState<DrawingTool>('cursor');
+  const [clearCanvasTrigger, setClearCanvasTrigger] = useState(0);
 
   useEffect(() => {
     loadQuestions();
@@ -59,6 +64,7 @@ export default function Quiz() {
   };
 
   const handleNextQuestion = () => {
+    setClearCanvasTrigger((prev) => prev + 1);
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
@@ -305,6 +311,9 @@ export default function Quiz() {
           </div>
         </div>
       </div>
+
+      <DrawingCanvas tool={drawingTool} clearTrigger={clearCanvasTrigger} />
+      <DrawingToolbar currentTool={drawingTool} onToolChange={setDrawingTool} />
     </div>
   );
 }
