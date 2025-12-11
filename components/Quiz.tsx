@@ -78,24 +78,24 @@ export default function Quiz() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Loading questions...</div>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-xl text-foreground-muted">Loading questions...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-red-600">Error: {error}</div>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-xl text-error">Error: {error}</div>
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">No questions available</div>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-xl text-foreground-muted">No questions available</div>
       </div>
     );
   }
@@ -105,22 +105,22 @@ export default function Quiz() {
     const percentage = Math.round((score / userAnswers.length) * 100);
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-center mb-8 text-indigo-900">
-            Quiz Complete!
+      <div className="min-h-screen bg-black py-12 px-4">
+        <div className="max-w-3xl mx-auto bg-surface rounded-xl border border-border p-8">
+          <h1 className="text-3xl font-medium text-center mb-8 text-foreground">
+            Quiz Complete
           </h1>
 
           <div className="text-center mb-8">
-            <div className="text-6xl font-bold text-indigo-600 mb-4">
+            <div className="text-6xl font-semibold text-accent mb-4">
               {percentage}%
             </div>
-            <div className="text-2xl text-gray-700">
+            <div className="text-xl text-foreground-muted">
               {score} out of {userAnswers.length} correct
             </div>
           </div>
 
-          <div className="space-y-4 mb-8">
+          <div className="space-y-3 mb-8">
             {questions.map((question, index) => {
               const userAnswer = userAnswers.find(a => a.questionIndex === index);
               if (!userAnswer) return null;
@@ -128,32 +128,32 @@ export default function Quiz() {
               return (
                 <div
                   key={index}
-                  className={`p-4 rounded-lg border-2 ${
+                  className={`p-4 rounded-lg border transition-colors ${
                     userAnswer.isCorrect
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-red-500 bg-red-50'
+                      ? 'border-success/30 bg-success/5'
+                      : 'border-error/30 bg-error/5'
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`font-bold ${
-                      userAnswer.isCorrect ? 'text-green-600' : 'text-red-600'
+                    <div className={`font-medium ${
+                      userAnswer.isCorrect ? 'text-success' : 'text-error'
                     }`}>
                       Q{index + 1}:
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-gray-700 mb-2">
+                      <div className="text-sm text-foreground-muted mb-2">
                         {question.question.substring(0, 100)}...
                       </div>
                       <div className="text-sm">
-                        <span className="font-semibold">Your answer: </span>
-                        <span className={userAnswer.isCorrect ? 'text-green-700' : 'text-red-700'}>
+                        <span className="font-medium text-foreground">Your answer: </span>
+                        <span className={userAnswer.isCorrect ? 'text-success' : 'text-error'}>
                           {userAnswer.selectedAnswer} - {question.options[userAnswer.selectedAnswer]}
                         </span>
                       </div>
                       {!userAnswer.isCorrect && (
                         <div className="text-sm mt-1">
-                          <span className="font-semibold">Correct answer: </span>
-                          <span className="text-green-700">
+                          <span className="font-medium text-foreground">Correct answer: </span>
+                          <span className="text-success">
                             {question.answer} - {question.options[question.answer]}
                           </span>
                         </div>
@@ -167,7 +167,7 @@ export default function Quiz() {
 
           <button
             onClick={handleRestartQuiz}
-            className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+            className="w-full bg-accent text-white py-3 px-6 rounded-lg hover:bg-accent-hover transition-all font-medium"
           >
             Restart Quiz
           </button>
@@ -181,34 +181,31 @@ export default function Quiz() {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-black py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-foreground-muted mb-3">
             <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
             <span>{Math.round(progress)}% Complete</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-surface rounded-full h-1 overflow-hidden">
             <div
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+              className="bg-accent h-1 transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        {/* Question Card */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-surface rounded-xl border border-border p-8">
           <div className="mb-6">
-            <div className="inline-block bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full mb-4">
+            <div className="inline-block bg-surface-hover border border-border text-foreground-muted text-sm px-3 py-1.5 rounded-md mb-4">
               {currentQuestion.meta_info}
             </div>
-            <h2 className="text-xl font-semibold text-gray-800 leading-relaxed">
+            <h2 className="text-xl font-medium text-foreground leading-relaxed">
               {currentQuestion.question}
             </h2>
           </div>
 
-          {/* Answer Options */}
           <div className="space-y-3 mb-8">
             {optionKeys.map((key) => {
               const isSelected = selectedAnswer === key;
@@ -221,30 +218,30 @@ export default function Quiz() {
                   key={key}
                   onClick={() => handleAnswerSelect(key)}
                   disabled={showFeedback}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                  className={`w-full text-left p-4 rounded-lg border transition-all ${
                     showCorrect
-                      ? 'border-green-500 bg-green-50'
+                      ? 'border-success bg-success/5'
                       : showIncorrect
-                      ? 'border-red-500 bg-red-50'
+                      ? 'border-error bg-error/5'
                       : isSelected
-                      ? 'border-indigo-500 bg-indigo-50'
-                      : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
+                      ? 'border-accent bg-accent/5'
+                      : 'border-border hover:border-border-hover hover:bg-surface-hover'
                   } ${showFeedback ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-medium text-sm ${
                       showCorrect
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-success text-black'
                         : showIncorrect
-                        ? 'bg-red-500 text-white'
+                        ? 'bg-error text-white'
                         : isSelected
-                        ? 'bg-indigo-500 text-white'
-                        : 'bg-gray-100 text-gray-700'
+                        ? 'bg-accent text-white'
+                        : 'bg-surface-hover text-foreground-muted border border-border'
                     }`}>
                       {key}
                     </div>
                     <div className="flex-1 pt-1">
-                      <p className="text-gray-800">{currentQuestion.options[key]}</p>
+                      <p className="text-foreground">{currentQuestion.options[key]}</p>
                     </div>
                   </div>
                 </button>
@@ -252,40 +249,38 @@ export default function Quiz() {
             })}
           </div>
 
-          {/* Feedback Message */}
           {showFeedback && (
-            <div className={`p-4 rounded-lg mb-6 ${
+            <div className={`p-4 rounded-lg mb-6 border ${
               selectedAnswer === currentQuestion.answer
-                ? 'bg-green-100 border border-green-300'
-                : 'bg-red-100 border border-red-300'
+                ? 'bg-success/5 border-success/30'
+                : 'bg-error/5 border-error/30'
             }`}>
-              <p className={`font-semibold ${
+              <p className={`font-medium ${
                 selectedAnswer === currentQuestion.answer
-                  ? 'text-green-800'
-                  : 'text-red-800'
+                  ? 'text-success'
+                  : 'text-error'
               }`}>
                 {selectedAnswer === currentQuestion.answer
-                  ? '✓ Correct!'
+                  ? '✓ Correct'
                   : '✗ Incorrect'}
               </p>
               {selectedAnswer !== currentQuestion.answer && (
-                <p className="text-sm text-gray-700 mt-1">
-                  The correct answer is <strong>{currentQuestion.answer}</strong>: {currentQuestion.options[currentQuestion.answer]}
+                <p className="text-sm text-foreground-muted mt-1">
+                  The correct answer is <strong className="text-foreground">{currentQuestion.answer}</strong>: {currentQuestion.options[currentQuestion.answer]}
                 </p>
               )}
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex gap-4">
             {!showFeedback ? (
               <button
                 onClick={handleSubmitAnswer}
                 disabled={!selectedAnswer}
-                className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-colors ${
+                className={`flex-1 py-3 px-6 rounded-lg font-medium transition-all ${
                   selectedAnswer
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ? 'bg-accent text-white hover:bg-accent-hover'
+                    : 'bg-surface-hover text-foreground-muted cursor-not-allowed border border-border'
                 }`}
               >
                 Submit Answer
@@ -293,7 +288,7 @@ export default function Quiz() {
             ) : (
               <button
                 onClick={handleNextQuestion}
-                className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+                className="flex-1 bg-accent text-white py-3 px-6 rounded-lg hover:bg-accent-hover transition-all font-medium"
               >
                 {currentQuestionIndex < questions.length - 1 ? 'Next Question →' : 'View Results'}
               </button>
@@ -301,11 +296,10 @@ export default function Quiz() {
           </div>
         </div>
 
-        {/* Score Tracker */}
-        <div className="mt-6 bg-white rounded-lg shadow p-4">
+        <div className="mt-6 bg-surface rounded-lg border border-border p-4">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Current Score:</span>
-            <span className="text-2xl font-bold text-indigo-600">
+            <span className="text-foreground-muted">Current Score</span>
+            <span className="text-2xl font-semibold text-accent">
               {userAnswers.filter(a => a.isCorrect).length} / {userAnswers.length}
             </span>
           </div>
