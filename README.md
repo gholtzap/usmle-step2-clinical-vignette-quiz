@@ -1,5 +1,7 @@
 # usmle-step2-clinical-vignette-quiz
 
+visit [https://usmlequiz.io/](https://usmlequiz.io/) to see the production build.
+
 ### Prerequisites
 
 - Node.js 18+ installed
