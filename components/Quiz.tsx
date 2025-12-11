@@ -18,6 +18,7 @@ export default function Quiz() {
   const [drawingTool, setDrawingTool] = useState<DrawingTool>('cursor');
   const [clearCanvasTrigger, setClearCanvasTrigger] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -70,6 +71,7 @@ export default function Quiz() {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
       setShowFeedback(false);
+      setShowAnswer(false);
     } else {
       setIsQuizComplete(true);
     }
@@ -81,6 +83,7 @@ export default function Quiz() {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
       setShowFeedback(false);
+      setShowAnswer(false);
     } else {
       setIsQuizComplete(true);
     }
@@ -272,7 +275,7 @@ ${optionKeys.map(key => `${key}. ${currentQuestion.options[key]}`).join('\n')}`;
             {optionKeys.map((key) => {
               const isSelected = selectedAnswer === key;
               const isCorrect = key === currentQuestion.answer;
-              const showCorrect = showFeedback && isCorrect;
+              const showCorrect = (showFeedback || showAnswer) && isCorrect;
               const showIncorrect = showFeedback && isSelected && !isCorrect;
 
               return (
@@ -347,6 +350,12 @@ ${optionKeys.map(key => `${key}. ${currentQuestion.options[key]}`).join('\n')}`;
                   }`}
                 >
                   Submit Answer
+                </button>
+                <button
+                  onClick={() => setShowAnswer(true)}
+                  className="px-6 py-3 rounded-lg font-medium border border-border bg-surface-hover hover:bg-surface text-foreground-muted hover:text-foreground transition-all"
+                >
+                  Show Answer
                 </button>
                 <button
                   onClick={handleSkipQuestion}
