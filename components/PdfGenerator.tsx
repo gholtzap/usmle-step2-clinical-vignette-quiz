@@ -9,6 +9,15 @@ export default function PdfGenerator({ questions, isOpen, onClose }: PdfGenerato
   const [numQuestions, setNumQuestions] = useState(10);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const sanitizeText = (text: string): string => {
+    return text
+      .replace(/↑/g, 'Increase')
+      .replace(/↓/g, 'Decrease')
+      .replace(/\$\$\$/g, '')
+      .replace(/%%%/g, ' | ')
+      .replace(/[^\x00-\x7F]/g, '');
+  };
+
   const generatePdf = async () => {
     setIsGenerating(true);
 
@@ -34,13 +43,15 @@ export default function PdfGenerator({ questions, isOpen, onClose }: PdfGenerato
 
       doc.setFontSize(12);
       doc.setTextColor(0);
-      const questionLines = doc.splitTextToSize(question.question, maxWidth);
+      const sanitizedQuestion = sanitizeText(question.question);
+      const questionLines = doc.splitTextToSize(sanitizedQuestion, maxWidth);
       doc.text(questionLines, margin, yPosition);
       yPosition += questionLines.length * 7 + 10;
 
       const optionKeys = Object.keys(question.options).sort();
       optionKeys.forEach((key) => {
-        const optionText = `${key}. ${question.options[key]}`;
+        const sanitizedOption = sanitizeText(question.options[key]);
+        const optionText = `${key}. ${sanitizedOption}`;
         const optionLines = doc.splitTextToSize(optionText, maxWidth);
         doc.text(optionLines, margin, yPosition);
         yPosition += optionLines.length * 7 + 5;
@@ -66,7 +77,8 @@ export default function PdfGenerator({ questions, isOpen, onClose }: PdfGenerato
         yPosition = margin;
       }
 
-      const answerText = `${index + 1}. ${question.answer} - ${question.options[question.answer]}`;
+      const sanitizedAnswer = sanitizeText(question.options[question.answer]);
+      const answerText = `${index + 1}. ${question.answer} - ${sanitizedAnswer}`;
       const answerLines = doc.splitTextToSize(answerText, maxWidth);
       doc.text(answerLines, margin, yPosition);
       yPosition += answerLines.length * 6 + 4;
