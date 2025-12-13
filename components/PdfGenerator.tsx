@@ -15,15 +15,16 @@ export default function PdfGenerator({ questions, isOpen, onClose }: PdfGenerato
     const doc = new jsPDF();
     const questionsToExport = questions.slice(0, numQuestions);
 
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxWidth = pageWidth - (margin * 2);
+
     questionsToExport.forEach((question: Question, index: number) => {
       if (index > 0) {
         doc.addPage();
       }
 
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
-      const maxWidth = pageWidth - (margin * 2);
       let yPosition = margin;
 
       doc.setFontSize(10);
@@ -49,6 +50,32 @@ export default function PdfGenerator({ questions, isOpen, onClose }: PdfGenerato
       doc.setTextColor(150);
       doc.text(`Page ${index + 1}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
     });
+
+    doc.addPage();
+    let yPosition = margin;
+
+    doc.setFontSize(16);
+    doc.setTextColor(0);
+    doc.text('Answer Key', margin, yPosition);
+    yPosition += 15;
+
+    doc.setFontSize(10);
+    questionsToExport.forEach((question: Question, index: number) => {
+      if (yPosition > pageHeight - 30) {
+        doc.addPage();
+        yPosition = margin;
+      }
+
+      const answerText = `${index + 1}. ${question.answer} - ${question.options[question.answer]}`;
+      const answerLines = doc.splitTextToSize(answerText, maxWidth);
+      doc.text(answerLines, margin, yPosition);
+      yPosition += answerLines.length * 6 + 4;
+    });
+
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    const totalPages = doc.getNumberOfPages();
+    doc.text(`Page ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     doc.save('quiz-questions.pdf');
     setIsGenerating(false);
