@@ -30,6 +30,24 @@ export async function GET(request: Request) {
       allQuestions = allQuestions.filter(q => q.meta_info === steps);
     }
 
+    const visualContentKeywords = [
+      'diagram',
+      'picture',
+      'image',
+      'shown in the',
+      'shown below',
+      'shown above',
+      'figure',
+      'illustration',
+      'graph',
+      'chart'
+    ];
+
+    allQuestions = allQuestions.filter(q => {
+      const questionLower = q.question.toLowerCase();
+      return !visualContentKeywords.some(keyword => questionLower.includes(keyword));
+    });
+
     const shuffledQuestions = shuffleArray(allQuestions);
 
     const paginatedQuestions = shuffledQuestions.slice(offset, offset + limit);
