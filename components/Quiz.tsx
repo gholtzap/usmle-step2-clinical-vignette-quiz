@@ -5,6 +5,7 @@ import { Question, UserAnswer } from '@/types/quiz';
 import { DrawingTool } from '@/types/canvas';
 import DrawingCanvas from '@/components/DrawingCanvas';
 import DrawingToolbar from '@/components/DrawingToolbar';
+import PdfGenerator from '@/components/PdfGenerator';
 
 type StepFilter = 'step1' | 'step2' | 'both';
 
@@ -22,6 +23,7 @@ export default function Quiz() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [stepFilter, setStepFilter] = useState<StepFilter>('both');
+  const [showPdfGenerator, setShowPdfGenerator] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -487,7 +489,25 @@ ${optionKeys.map(key => `${key}. ${currentQuestion.options[key]}`).join('\n')}`;
             </div>
           </div>
         </div>
+
+        <div className="mt-4">
+          <button
+            onClick={() => setShowPdfGenerator(true)}
+            className="w-full bg-surface border border-border text-foreground py-3 px-6 rounded-lg hover:bg-surface-hover transition-all font-medium flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Generate PDF
+          </button>
+        </div>
       </div>
+
+      <PdfGenerator
+        questions={questions}
+        isOpen={showPdfGenerator}
+        onClose={() => setShowPdfGenerator(false)}
+      />
 
       <DrawingCanvas tool={drawingTool} clearTrigger={clearCanvasTrigger} />
       <DrawingToolbar currentTool={drawingTool} onToolChange={setDrawingTool} onClear={handleClearCanvas} />
