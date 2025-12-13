@@ -27,6 +27,56 @@ export default function Quiz() {
     loadQuestions();
   }, [stepFilter]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isQuizComplete || loading) return;
+
+      const key = event.key.toLowerCase();
+
+      if (['a', 'b', 'c', 'd', 'e'].includes(key) && !showFeedback) {
+        const upperKey = key.toUpperCase();
+        const currentQuestion = questions[currentQuestionIndex];
+        const optionKeys = Object.keys(currentQuestion.options).sort();
+
+        if (optionKeys.includes(upperKey)) {
+          handleAnswerSelect(upperKey);
+        }
+      }
+
+      if (event.key === 'Enter') {
+        if (!showFeedback && selectedAnswer) {
+          handleSubmitAnswer();
+        } else if (showFeedback) {
+          handleNextQuestion();
+        }
+      }
+
+      if (event.key === 'ArrowRight') {
+        if (showFeedback) {
+          handleNextQuestion();
+        } else {
+          handleSkipQuestion();
+        }
+      }
+
+      if (event.key === 'ArrowLeft') {
+        if (currentQuestionIndex > 0) {
+          setClearCanvasTrigger((prev) => prev + 1);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setCurrentQuestionIndex(currentQuestionIndex - 1);
+          setSelectedAnswer('');
+          setShowFeedback(false);
+          setShowAnswer(false);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentQuestionIndex, selectedAnswer, showFeedback, isQuizComplete, loading, questions]);
+
   const loadQuestions = async () => {
     try {
       setLoading(true);
@@ -423,6 +473,18 @@ ${optionKeys.map(key => `${key}. ${currentQuestion.options[key]}`).join('\n')}`;
             <span className="text-2xl font-semibold text-accent">
               {userAnswers.filter(a => a.isCorrect).length} / {userAnswers.length}
             </span>
+          </div>
+        </div>
+
+        <div className="mt-4 bg-surface rounded-lg border border-border p-4">
+          <div className="text-sm text-foreground-muted">
+            <div className="font-medium text-foreground mb-2">Keyboard Shortcuts</div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><kbd className="px-2 py-1 bg-surface-hover rounded border border-border text-xs">A-E</kbd> Select answer</div>
+              <div><kbd className="px-2 py-1 bg-surface-hover rounded border border-border text-xs">Enter</kbd> Submit / Next</div>
+              <div><kbd className="px-2 py-1 bg-surface-hover rounded border border-border text-xs">→</kbd> Next / Skip</div>
+              <div><kbd className="px-2 py-1 bg-surface-hover rounded border border-border text-xs">←</kbd> Previous</div>
+            </div>
           </div>
         </div>
       </div>

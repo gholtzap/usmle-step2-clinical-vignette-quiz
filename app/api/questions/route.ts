@@ -30,6 +30,8 @@ export async function GET(request: Request) {
       allQuestions = allQuestions.filter(q => q.meta_info === steps);
     }
 
+    // some questions reference diagrams that don't exist (because the Qs are in plaintext format)
+    // this filters them out (approx 23% of questions - 14k -> 11k).
     const visualContentKeywords = [
       'diagram',
       'picture',
